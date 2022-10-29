@@ -1,0 +1,23 @@
+##################################################
+userdata file of database server
+##################################################
+
+#!/bin/bash
+
+yum install mariadb-server -y
+systemctl restart mariadb.service
+systemctl enable mariadb.service
+
+mysql -e "UPDATE mysql.user SET Password=PASSWORD ('${DB_PASSWD}') WHERE User='root';"
+mysql -e "DELETE FROM mysql.user WHERE User='';"
+mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+mysql -e "DROP DATABASE IF EXISTS test;"
+mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';"
+mysql -e  "FLUSH PRIVILEGES;"
+
+mysql -u root -p${DB_PASSWD} -e "create database wordpress;"
+mysql -u root -p${DB_PASSWD} -e "create user wordpress@'%' identified by 'wordpress';"
+mysql -u root -p${DB_PASSWD} -e "grant all privileges on wordpress.* to wordpress@'%';"
+mysql -u root -p${DB_PASSWD} -e "flush privileges;"
+
+systemctl restart mariadb.service
