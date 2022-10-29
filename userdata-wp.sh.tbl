@@ -1,0 +1,19 @@
+##########################################################
+# Create Wordpress webserver userdata
+##########################################################
+#!/bin/bash
+sudo yum install httpd mysql -y
+sudo amazon-linux-extras install epel -y
+sudo amazon-linux-extras install php7.4 -y
+wget https://wordpress.org/latest.zip
+unzip latest.zip
+sudo cp -r wordpress/* /var/www/html/
+sudo chown -R apache:apache /var/www/html/*
+sudo systemctl restart httpd.service
+sudo systemctl enable httpd.service
+sudo mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+sudo sed -i "s/database_name_here/${db_database}/" /var/www/html/wp-config.php
+sudo sed -i "s/username_here/${db_user}/g" /var/www/html/wp-config.php
+sudo sed -i "s/password_here/${db_passwd}/g" /var/www/html/wp-config.php
+sudo sed -i "s/localhost/${LocalHost}/g" /var/www/html/wp-config.php
+sudo systemctl restart httpd.service
